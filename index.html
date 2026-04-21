@@ -14,6 +14,7 @@
             --border: #dadce0;
             --success: #1e8e3e;
             --error: #d93025;
+            --script-bg: #e8f0fe;
         }
 
         [data-theme="dark"] {
@@ -22,6 +23,7 @@
             --text-main: #e8eaed;
             --text-sub: #9aa0a6;
             --border: #3c4043;
+            --script-bg: #174ea6;
         }
 
         body { 
@@ -39,7 +41,6 @@
             background: var(--card-bg);
             padding: 20px;
             border-bottom: 1px solid var(--border);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
@@ -67,7 +68,17 @@
         }
 
         .requirement-title { font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 15px; display: block; }
-        .question-text { font-size: 15px; margin-bottom: 20px; line-height: 1.5; }
+        
+        .script-box {
+            background: var(--script-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-style: italic;
+            border-left: 5px solid var(--primary);
+            line-height: 1.6;
+            font-size: 14px;
+        }
 
         .btn-group { display: flex; gap: 15px; }
         .action-btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
@@ -77,11 +88,14 @@
         .error-message {
             background: #fff0f0; color: #d93025; padding: 15px;
             border-radius: 8px; margin-top: 15px; border: 1px solid #f5c2c7;
-            display: none; font-weight: 500;
+            display: none; font-weight: 600;
         }
 
         .verified-card { border-color: var(--success); opacity: 0.6; pointer-events: none; }
         .final-success { text-align: center; background: var(--success); color: white; padding: 30px; border-radius: 16px; }
+        
+        /* Red Alert Class */
+        .red-alert { color: #d93025; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -89,10 +103,10 @@
 <div class="sticky-header">
     <div style="max-width: 800px; margin: 0 auto;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="margin:0; font-size: 20px;">HIPAA Verification</h1>
+            <h1 style="margin:0; font-size: 20px;">HIPAA Verification Portal</h1>
             <button class="cat-btn" style="width: auto;" onclick="toggleTheme()">🌙 Mode</button>
         </div>
-        <div id="status-text" style="font-size: 13px; font-weight: 600; color: var(--text-sub); margin-top: 10px;">SELECT CATEGORY</div>
+        <div id="status-text" style="font-size: 13px; font-weight: 600; color: var(--text-sub); margin-top: 10px;">SELECT CATEGORY TO BEGIN</div>
         <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
     </div>
 </div>
@@ -113,7 +127,7 @@
         member: ["Member ID", "First Name and Last Name", "Date of Birth", "Mailing Address", "Phone Number", "Email Address"],
         dependent: ["Member ID", "First Name and Last Name", "Date of Birth", "Mailing Address", "Phone Number", "Email Address"],
         payor: ["Member ID", "First Name and Last Name of Member", "Date of Birth", "Mailing Address", "Phone Number", "Last 4 Digits of the Card", "Email Address"],
-        provider: ["Member ID", "NPI / Group or Doctor Name", "Tax ID (Optional)", "Full Name of Member or Dependent", "Date of Birth of Member or Dependent", "Callback Number"]
+        provider: ["Member ID", "NPI / Group or Doctor Name", "Tax ID", "Full Name of Member or Dependent", "Date of Birth of Member or Dependent", "Callback Number"]
     };
 
     let stepIdx = 0;
@@ -141,7 +155,7 @@
             document.getElementById('final-message').innerHTML = `
                 <div class="final-success">
                     🏆 HIPAA Verification Complete!<br>
-                    <span style="font-size: 14px; font-weight: normal;">Once HIPAA verification is complete, proceed with addressing inquiries such as claims or benefits eligibility.</span>
+                    <span style="font-size: 14px; font-weight: normal;">Once HIPAA verification is complete, proceed with addressing inquiries.</span>
                 </div>`;
             return;
         }
@@ -149,31 +163,89 @@
         const container = document.getElementById('steps-container');
         document.getElementById('progressBar').style.width = (stepIdx / fields.length) * 100 + '%';
         
+        const fieldName = fields[stepIdx];
         const div = document.createElement('div');
         div.className = 'step-card';
         div.id = `step-${stepIdx}`;
+
+        let scriptContent = "";
+        let instructions = "";
+
+        // UNIQUE LOGIC FOR NAME
+        if (fieldName === "First Name and Last Name" || fieldName.includes("Full Name")) {
+            scriptContent = `Once the member provided their Full Name, kindly repeat it to make sure we heard it correctly.<br><br>
+                             <strong>Agent:</strong> (State the name), did I get your name correctly?`;
+            instructions = `If the Name provided matches the Name on the account, you may now proceed and click <b>YES</b>.
+                            If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
+        } 
+        // UNIQUE LOGIC FOR MEMBER ID
+        else if (fieldName === "Member ID") {
+            scriptContent = `Once the member provided their Member ID, kindly repeat it to make sure we heard it correctly.<br><br>
+                             <strong>Agent:</strong> I just want to make sure I got the Member ID correctly. The Member ID is <b>(State the Member ID)</b>.`;
+            instructions = `If the member ID provided matches the Member ID on the account, click <b>YES</b>. If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
+        }
+        // PLACEHOLDER FOR EVERYTHING ELSE
+        else {
+            scriptContent = `Once the caller provides their ${fieldName}, kindly repeat it to make sure we heard it correctly.<br><br>
+                             <strong>Agent:</strong> I just want to make sure I got the ${fieldName} correctly. It is <b>(State the ${fieldName})</b>.`;
+            instructions = `If the ${fieldName} provided matches the ${fieldName} on the account, click <b>YES</b>. If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
+        }
+
         div.innerHTML = `
-            <span class="requirement-title">${fields[stepIdx]}</span>
-            <div class="question-text">Did the information provided to you match the information shown in the member’s account?</div>
+            <span class="requirement-title">${fieldName}</span>
+            <div class="script-box">${scriptContent}</div>
+            <div style="margin-bottom: 20px; font-size: 14px;">${instructions}</div>
             <div class="btn-group" id="actions-${stepIdx}">
                 <button class="action-btn yes-btn" onclick="verify(true)">YES</button>
                 <button class="action-btn no-btn" onclick="verify(false)">NO</button>
             </div>
-            <div id="error-${stepIdx}" class="error-message">Please double-check the information, as it does not align with what is reflected in the system.</div>
+            <div id="error-${stepIdx}" class="error-message"></div>
         `;
+
         container.appendChild(div);
         div.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function verify(isYes) {
+        const fieldName = fields[stepIdx];
+        const errorDiv = document.getElementById(`error-${stepIdx}`);
+
         if (isYes) {
             document.getElementById(`step-${stepIdx}`).classList.add('verified-card');
             document.getElementById(`actions-${stepIdx}`).style.display = 'none';
-            document.getElementById(`error-${stepIdx}`).style.display = 'none';
+            errorDiv.style.display = 'none';
             stepIdx++;
             showStep();
         } else {
-            document.getElementById(`error-${stepIdx}`).style.display = 'block';
+            // UNIQUE ERROR FOR NAME
+            if (fieldName === "First Name and Last Name" || fieldName.includes("Full Name")) {
+                errorDiv.innerHTML = `
+                    <span class="red-alert">🛑 DO NOT PROCEED WITH THE CALL!!!</span><br><br>
+                    <strong>Agent:</strong> Upon checking the account, the Name you provided is different from the Name on the account. Kindly double check and please provide the Name once more.<br><br>
+                    <span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT NAME WAS PROVIDED.</span>
+                `;
+            } 
+            // UNIQUE ERROR FOR MEMBER ID
+            else if (fieldName === "Member ID") {
+                errorDiv.innerHTML = `
+                    <span class="red-alert">🛑 DO NOT PROCEED WITH THE CALL!!!</span><br><br>
+                    <strong>Agent:</strong> Upon checking the account, the Member ID you provided is different from the Member ID on the account. Kindly double check and please provide the Member ID once more.
+                `;
+            }
+
+            else if (fieldName === "Date of Birth") {
+                errorDiv.innerHTML = `
+                    <span class="red-alert">🛑 DO NOT PROCEED WITH THE CALL!!!</span><br><br>
+                    <strong>Agent:</strong> Upon checking the account, the Date of Birth you provided is different from the Date of Birth on the account. Kindly double check and please provide the Date of Birth once more.<br><br>
+                    <span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT ${fieldName} WAS PROVIDED.</span>
+                `;
+            }
+            // PLACEHOLDER ERROR FOR EVERYTHING ELSE
+            else {
+                errorDiv.innerHTML = `<span class="red-alert">🛑 DO NOT PROCEED!</span> The ${fieldName} provided does not match our records. Please ask the caller to double-check.<br><br><strong>Agent:</strong> Upon checking the account, the ${fieldName} you provided is different from the ${fieldName} on the account. Kindly double check and please provide the ${fieldName} once more.<br><br>
+                    <span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT ${fieldName} WAS PROVIDED.</span>`;
+            }
+            errorDiv.style.display = 'block';
         }
     }
 </script>
