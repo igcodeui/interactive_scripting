@@ -142,7 +142,7 @@
     function start(cat, btn) {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        currentCatLabel = btn.innerText; // Captures "Member", "Dependent", etc.
+        currentCatLabel = btn.innerText; 
         document.getElementById('steps-container').innerHTML = '';
         document.getElementById('final-message').innerHTML = '';
         document.getElementById('status-text').innerText = `VERIFYING: ${cat.toUpperCase()}`;
@@ -187,6 +187,12 @@
                              <strong>Agent:</strong> Thank you, I just want to make sure I got the Member ID correctly. The Member ID is <b>(State the Member ID)</b>.`;
             instructions = `If the member ID provided matches the Member ID on the account, click <b>YES</b>. If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
         }
+        // UNIQUE LOGIC FOR CALLBACK NUMBER
+        else if (fieldName === "Callback Number") {
+            scriptContent = `Once the ${label} provided their ${fieldName}, kindly repeat it to make sure we heard it correctly.<br><br>
+                             <strong>Agent:</strong> Thank you, I just want to make sure I got the ${fieldName} correctly. The ${fieldName} is <b>(State the ${fieldName})</b>.`;
+            instructions = `Once you confirmed that the ${fieldName} provided is correct, click <b>YES</b>. If not, <span class="red-alert">PLEASE CLICK NO.</span>`;
+        }
         // PLACEHOLDER FOR EVERYTHING ELSE
         else {
             scriptContent = `Once the ${label} provides their ${fieldName}, kindly repeat it to make sure we heard it correctly.<br><br>
@@ -220,12 +226,20 @@
             stepIdx++;
             showStep();
         } else {
-            // General Error Template
-            errorDiv.innerHTML = `
-                <span class="red-alert">🛑 DO NOT PROCEED WITH THE CALL!!!</span><br><br>
-                <strong>Agent:</strong> Upon checking the account, the ${fieldName} you provided is different from the ${fieldName} on the account. Kindly double check and please provide the ${fieldName} once more.<br><br>
-                <span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT ${fieldName.toUpperCase()} WAS PROVIDED.</span>
-            `;
+            // SPECIAL ERROR LOGIC FOR CALLBACK NUMBER
+            if (fieldName === "Callback Number") {
+                errorDiv.innerHTML = `
+                    <strong>Agent:</strong> Can you please provide the callback number again?<br><br>
+                    Once you got the callback number correctly, you may now click <b>YES</b>.
+                `;
+            } else {
+                // General Error Template for other fields
+                errorDiv.innerHTML = `
+                    <span class="red-alert">🛑 DO NOT PROCEED WITH THE CALL!!!</span><br><br>
+                    <strong>Agent:</strong> Upon checking the account, the ${fieldName} you provided is different from the ${fieldName} on the account. Kindly double check and please provide the ${fieldName} once more.<br><br>
+                    <span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT ${fieldName.toUpperCase()} WAS PROVIDED.</span>
+                `;
+            }
             errorDiv.style.display = 'block';
         }
     }
