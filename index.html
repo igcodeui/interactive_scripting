@@ -128,11 +128,11 @@ const config = {
         dependent: ["Member ID", "First Name and Last Name", "Date of Birth", "Mailing Address", "Phone Number", "Email Address"],
         payor: [
             "Member ID", 
+            "Phone Number",
             "Last 4 Digits of the Card", 
             "First Name and Last Name of Member", 
             "Date of Birth", 
             "Mailing Address", 
-            "Phone Number", 
             "Email Address"
         ],
         provider: ["Member ID", "NPI/Tax ID & Doctors Name/Facility Name", "Full Name of Member or Dependent", "Date of Birth of Member or Dependent", "Callback Number"]
@@ -196,7 +196,7 @@ const config = {
             
             // Conditional Instruction for Payor Tab
             if (label === "payor") {
-                instructions = `If the payor can not provide the member ID, we may proceed with the last 4 digits of the Credit Card on file.`;
+                instructions = `If the payor can not provide the member ID, we may proceed with the phone number to pull up the account.`;
             } else {
                 instructions = `If the member ID provided matches the Member ID on the account, click <b>YES</b>. If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
             }
