@@ -123,10 +123,18 @@
 </div>
 
 <script>
-    const config = {
+const config = {
         member: ["Member ID", "First Name and Last Name", "Date of Birth", "Mailing Address", "Phone Number", "Email Address"],
         dependent: ["Member ID", "First Name and Last Name", "Date of Birth", "Mailing Address", "Phone Number", "Email Address"],
-        payor: ["Member ID", "First Name and Last Name of Member", "Date of Birth", "Mailing Address", "Phone Number", "Last 4 Digits of the Card", "Email Address"],
+        payor: [
+            "Member ID", 
+            "Last 4 Digits of the Card", 
+            "First Name and Last Name of Member", 
+            "Date of Birth", 
+            "Mailing Address", 
+            "Phone Number", 
+            "Email Address"
+        ],
         provider: ["Member ID", "NPI/Tax ID & Doctors Name/Facility Name", "Full Name of Member or Dependent", "Date of Birth of Member or Dependent", "Callback Number"]
     };
 
@@ -185,7 +193,13 @@
         else if (fieldName === "Member ID") {
             scriptContent = `Once the ${label} provided their Member ID, kindly repeat it to make sure we heard it correctly.<br><br>
                              <strong>Agent:</strong> Thank you, I just want to make sure I got the Member ID correctly. The Member ID is <b>(State the Member ID)</b>.`;
-            instructions = `If the member ID provided matches the Member ID on the account, click <b>YES</b>. If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
+            
+            // Conditional Instruction for Payor Tab
+            if (label === "payor") {
+                instructions = `If the payor can not provide the member ID, we may proceed with the last 4 digits of the Credit Card on file.`;
+            } else {
+                instructions = `If the member ID provided matches the Member ID on the account, click <b>YES</b>. If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
+            }
         }
         // UNIQUE LOGIC FOR CALLBACK NUMBER
         else if (fieldName === "Callback Number") {
