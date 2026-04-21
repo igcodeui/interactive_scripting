@@ -59,6 +59,7 @@
             flex: 1; padding: 12px; border: 1px solid var(--border);
             background: var(--card-bg); color: var(--text-main);
             border-radius: 8px; cursor: pointer; font-weight: 600;
+            text-align: center;
         }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
@@ -94,7 +95,6 @@
         .verified-card { border-color: var(--success); opacity: 0.6; pointer-events: none; }
         .final-success { text-align: center; background: var(--success); color: white; padding: 30px; border-radius: 16px; }
         
-        /* Red Alert Class */
         .red-alert { color: #d93025; font-weight: bold; }
     </style>
 </head>
@@ -132,6 +132,7 @@
 
     let stepIdx = 0;
     let fields = [];
+    let currentCatLabel = "";
 
     function toggleTheme() {
         document.body.getAttribute('data-theme') === 'dark' ? 
@@ -141,6 +142,7 @@
     function start(cat, btn) {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        currentCatLabel = btn.innerText; // Captures "Member", "Dependent", etc.
         document.getElementById('steps-container').innerHTML = '';
         document.getElementById('final-message').innerHTML = '';
         document.getElementById('status-text').innerText = `VERIFYING: ${cat.toUpperCase()}`;
@@ -170,23 +172,24 @@
 
         let scriptContent = "";
         let instructions = "";
+        const label = currentCatLabel.toLowerCase();
 
         // UNIQUE LOGIC FOR NAME
         if (fieldName === "First Name and Last Name" || fieldName.includes("Full Name")) {
-            scriptContent = `Once the member provided their Full Name, kindly repeat it to make sure we heard it correctly.<br><br>
+            scriptContent = `Once the ${label} provided their Full Name, kindly repeat it to make sure we heard it correctly.<br><br>
                              <strong>Agent:</strong> Thank you. (State the name), did I get your name correctly?`;
-            instructions = `If the Name provided matches the Name on the account, you may now proceed and click <b>YES</b>.
+            instructions = `If the Name provided matches the Name on the account, you may now proceed and click <b>YES</b>.<br><br>
                             If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
         } 
         // UNIQUE LOGIC FOR MEMBER ID
         else if (fieldName === "Member ID") {
-            scriptContent = `Once the member provided their Member ID, kindly repeat it to make sure we heard it correctly.<br><br>
+            scriptContent = `Once the ${label} provided their Member ID, kindly repeat it to make sure we heard it correctly.<br><br>
                              <strong>Agent:</strong> Thank you, I just want to make sure I got the Member ID correctly. The Member ID is <b>(State the Member ID)</b>.`;
             instructions = `If the member ID provided matches the Member ID on the account, click <b>YES</b>. If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
         }
         // PLACEHOLDER FOR EVERYTHING ELSE
         else {
-            scriptContent = `Once the caller provides their ${fieldName}, kindly repeat it to make sure we heard it correctly.<br><br>
+            scriptContent = `Once the ${label} provides their ${fieldName}, kindly repeat it to make sure we heard it correctly.<br><br>
                              <strong>Agent:</strong> Thank you, I just want to make sure I got the ${fieldName} correctly. It is <b>(State the ${fieldName})</b>.`;
             instructions = `If the ${fieldName} provided matches the ${fieldName} on the account, click <b>YES</b>. If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
         }
@@ -217,34 +220,12 @@
             stepIdx++;
             showStep();
         } else {
-            // UNIQUE ERROR FOR NAME
-            if (fieldName === "First Name and Last Name" || fieldName.includes("Full Name")) {
-                errorDiv.innerHTML = `
-                    <span class="red-alert">🛑 DO NOT PROCEED WITH THE CALL!!!</span><br><br>
-                    <strong>Agent:</strong> Upon checking the account, the Name you provided is different from the Name on the account. Kindly double check and please provide the Name once more.<br><br>
-                    <span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT NAME WAS PROVIDED.</span>
-                `;
-            } 
-            // UNIQUE ERROR FOR MEMBER ID
-            else if (fieldName === "Member ID") {
-                errorDiv.innerHTML = `
-                    <span class="red-alert">🛑 DO NOT PROCEED WITH THE CALL!!!</span><br><br>
-                    <strong>Agent:</strong> Upon checking the account, the Member ID you provided is different from the Member ID on the account. Kindly double check and please provide the Member ID once more.<br><br><span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT ${fieldName} WAS PROVIDED.</span>
-                `;
-            }
-
-            else if (fieldName === "Date of Birth") {
-                errorDiv.innerHTML = `
-                    <span class="red-alert">🛑 DO NOT PROCEED WITH THE CALL!!!</span><br><br>
-                    <strong>Agent:</strong> Upon checking the account, the Date of Birth you provided is different from the Date of Birth on the account. Kindly double check and please provide the Date of Birth once more.<br><br>
-                    <span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT ${fieldName} WAS PROVIDED.</span>
-                `;
-            }
-            // PLACEHOLDER ERROR FOR EVERYTHING ELSE
-            else {
-                errorDiv.innerHTML = `<span class="red-alert">🛑 DO NOT PROCEED!</span> The ${fieldName} provided does not match our records. Please ask the caller to double-check.<br><br><strong>Agent:</strong> Upon checking the account, the ${fieldName} you provided is different from the ${fieldName} on the account. Kindly double check and please provide the ${fieldName} once more.<br><br>
-                    <span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT ${fieldName} WAS PROVIDED.</span>`;
-            }
+            // General Error Template
+            errorDiv.innerHTML = `
+                <span class="red-alert">🛑 DO NOT PROCEED WITH THE CALL!!!</span><br><br>
+                <strong>Agent:</strong> Upon checking the account, the ${fieldName} you provided is different from the ${fieldName} on the account. Kindly double check and please provide the ${fieldName} once more.<br><br>
+                <span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT ${fieldName.toUpperCase()} WAS PROVIDED.</span>
+            `;
             errorDiv.style.display = 'block';
         }
     }
