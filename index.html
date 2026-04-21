@@ -174,20 +174,20 @@
         // UNIQUE LOGIC FOR NAME
         if (fieldName === "First Name and Last Name" || fieldName.includes("Full Name")) {
             scriptContent = `Once the member provided their Full Name, kindly repeat it to make sure we heard it correctly.<br><br>
-                             <strong>Agent:</strong> (State the name), did I get your name correctly?`;
+                             <strong>Agent:</strong> Thank you. (State the name), did I get your name correctly?`;
             instructions = `If the Name provided matches the Name on the account, you may now proceed and click <b>YES</b>.
                             If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
         } 
         // UNIQUE LOGIC FOR MEMBER ID
         else if (fieldName === "Member ID") {
             scriptContent = `Once the member provided their Member ID, kindly repeat it to make sure we heard it correctly.<br><br>
-                             <strong>Agent:</strong> I just want to make sure I got the Member ID correctly. The Member ID is <b>(State the Member ID)</b>.`;
+                             <strong>Agent:</strong> Thank you, I just want to make sure I got the Member ID correctly. The Member ID is <b>(State the Member ID)</b>.`;
             instructions = `If the member ID provided matches the Member ID on the account, click <b>YES</b>. If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
         }
         // PLACEHOLDER FOR EVERYTHING ELSE
         else {
             scriptContent = `Once the caller provides their ${fieldName}, kindly repeat it to make sure we heard it correctly.<br><br>
-                             <strong>Agent:</strong> I just want to make sure I got the ${fieldName} correctly. It is <b>(State the ${fieldName})</b>.`;
+                             <strong>Agent:</strong> Thank you, I just want to make sure I got the ${fieldName} correctly. It is <b>(State the ${fieldName})</b>.`;
             instructions = `If the ${fieldName} provided matches the ${fieldName} on the account, click <b>YES</b>. If not, <span class="red-alert">PLEASE DO NOT PROCEED</span> and click <span class="red-alert">NO</span>.`;
         }
 
