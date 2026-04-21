@@ -229,7 +229,7 @@
             else if (fieldName === "Member ID") {
                 errorDiv.innerHTML = `
                     <span class="red-alert">🛑 DO NOT PROCEED WITH THE CALL!!!</span><br><br>
-                    <strong>Agent:</strong> Upon checking the account, the Member ID you provided is different from the Member ID on the account. Kindly double check and please provide the Member ID once more.
+                    <strong>Agent:</strong> Upon checking the account, the Member ID you provided is different from the Member ID on the account. Kindly double check and please provide the Member ID once more.<br><br><span class="red-alert">DO NOT PROCEED WITH THE CALL UNLESS THE CORRECT ${fieldName} WAS PROVIDED.</span>
                 `;
             }
 
